@@ -4,9 +4,12 @@ Date: 	2.15.2020
 #YangGangForever
 '''
 import os
+import sys
 import time
 import atexit
 import logging
+import psutil
+import platform
 from datetime import date
 from pymongo import MongoClient
 
@@ -43,6 +46,8 @@ class Record(object):
 		self.record = {}
 		self.db = self.client[database]
 		self.col = self.db[collection]
+
+		self.system_info()
 
 		# Save before process ends
 		atexit.register(self.save)
@@ -103,4 +108,24 @@ class Record(object):
 		doc_id = self.col.insert_one(self.record).inserted_id
 		self.log.info('experiment id: {}'.format(doc_id))
 		return doc_id
+
+
+	'''
+	Save system information
+	'''
+	def system_info(self):
+		uname = platform.uname()
+
+		self.extend({
+			'python': platform.python_version(),
+			'machine': uname.machine,
+			'processor': uname.processor,
+			'os': os.name,
+			'os_name': platform.system(),
+			'os_ver': platform.release(),
+			'memory': psutil.virtual_memory().total//2**30,
+			'storage': psutil.disk_usage('/').total//2**30,
+			'user': os.getlogin()
+		})
+
 
