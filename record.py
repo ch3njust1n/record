@@ -1,4 +1,7 @@
 '''
+Author: Justin Chen
+Date: 	2.15.2020
+#YangGangForever
 '''
 import os
 import time
@@ -13,18 +16,22 @@ class Record(object):
 			port (int)		MongoDB port number
 	'''
 	def __init__(self, host='localhost', port=27017, database='experiments', collection='parameters'):
+		os.mkdir('logs')
+
+		# Setup logger
 		self.log = logging.getLogger()
-		handler = logging.FileHandler(filename=date.today().strftime("%S-%M-%H-%d-%m-%Y.log"), mode='a')
+		handler = logging.FileHandler(filename=date.today().strftime("logs/%S-%M-%H-%d-%m-%Y.log"), mode='a')
 		formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
 		handler.setFormatter(formatter)
 		self.log.addHandler(handler)
 		self.log.setLevel(logging.DEBUG)
 		
+		# Start MongoDB
 		stream = os.popen('mongod')
 		self.log.info('starting mongodb')
 		self.log.info(stream.read())
-		self.log.info('-'*30)
 
+		# Connect to MongoDB
 		self.client = MongoClient(host, port)
 
 		if database not in self.client.list_database_names():
@@ -36,6 +43,7 @@ class Record(object):
 		self.db = self.client[database]
 		self.col = self.db[collection]
 
+		# Save before process ends
 		atexit.register(self.save)
 
 
