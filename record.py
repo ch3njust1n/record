@@ -5,7 +5,9 @@ Date: 	2.15.2020
 '''
 import os
 import sys
+import csv
 import time
+import torch
 import atexit
 import logging
 import psutil
@@ -115,6 +117,8 @@ class Record(object):
 	'''
 	def system_info(self):
 		uname = platform.uname()
+		gpus = [torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())]
+
 
 		self.extend({
 			'python': platform.python_version(),
@@ -123,9 +127,22 @@ class Record(object):
 			'os': os.name,
 			'os_name': platform.system(),
 			'os_ver': platform.release(),
-			'memory': psutil.virtual_memory().total//2**30,
-			'storage': psutil.disk_usage('/').total//2**30,
-			'user': os.getlogin()
+			'memory': str(psutil.virtual_memory().total//2**30)+' GB',
+			'storage': str(psutil.disk_usage('/').total//2**30)+' GB',
+			'user': os.getlogin(),
+			'gpus': gpus
 		})
+
+
+	'''
+	'''
+	def write_csv(self):
+		pass
+
+
+	'''
+	'''
+	def write_json(self):
+		pass
 
 
