@@ -5,16 +5,14 @@ Date: 	2.15.2020
 '''
 import os
 import sys
-import csv
-import json
 import time
 import atexit
-import logging
 import psutil
 import platform
 from torch import cuda
 from datetime import date
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 class Record(object):
 	'''
@@ -22,37 +20,19 @@ class Record(object):
 			port (int)		MongoDB port number
 	'''
 	def __init__(self, host='localhost', port=27017, database='experiments', collection='parameters'):
-		if not os.path.exists('logs'):
-			os.mkdir('logs')
-
-		if not os.path.exists('output'):
-			os.mkdir('output')
-
-		# Setup logger
-		self.name = date.today().strftime('%S-%M-%H-%d-%m-%Y')
-		self.log = logging.getLogger()
-		handler = logging.FileHandler(filename='logs/'+self.name+'.log', mode='a')
-		formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
-		handler.setFormatter(formatter)
-		self.log.addHandler(handler)
-		self.log.setLevel(logging.DEBUG)
 		
-		# Start MongoDB
+		# Start MongoDB daemon
 		stream = os.popen('mongod')
-		self.log.info('starting mongodb')
-		self.log.info(stream.read())
 
 		# Connect to MongoDB
 		self.client = MongoClient(host, port)
 
-		if database not in self.client.list_database_names():
-			log.info('{} does not exist. Will be created when data is inserted.'.format(database))
-
 		self.database = database
 		self.collection = collection
-		self.record = {}
 		self.db = self.client[database]
 		self.col = self.db[collection]
+
+		self.record = {}
 
 		self.system_info()
 
@@ -113,7 +93,6 @@ class Record(object):
 	'''
 	def save(self):
 		doc_id = self.col.insert_one(self.record).inserted_id
-		self.log.info('experiment id: {}'.format(doc_id))
 		return doc_id
 
 
@@ -140,21 +119,12 @@ class Record(object):
 
 
 	'''
-	'''
-	def write_csv(self):
-		pass
+	Retrieve record
 
-
-	'''
-	'''
-	def write_json(self):
-		with open('output/'+self.name+'.json', 'w') as f:
-			json.dump(self.record, f)
-
-
-	'''
+	inputs:  record_id (string)	MongoDB document _id
+	outputs: record    (dict)   Dictionary of record corresponding to record_id
 	'''
 	def get(self, record_id):
-		pass
+		return self.col.find_one({'_id': ObjectId(record_id)})
 
 
