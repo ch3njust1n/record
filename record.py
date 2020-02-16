@@ -6,12 +6,13 @@ Date: 	2.15.2020
 import os
 import sys
 import csv
+import json
 import time
-import torch
 import atexit
 import logging
 import psutil
 import platform
+from torch import cuda
 from datetime import date
 from pymongo import MongoClient
 
@@ -24,9 +25,13 @@ class Record(object):
 		if not os.path.exists('logs'):
 			os.mkdir('logs')
 
+		if not os.path.exists('output'):
+			os.mkdir('output')
+
 		# Setup logger
+		self.name = date.today().strftime('%S-%M-%H-%d-%m-%Y')
 		self.log = logging.getLogger()
-		handler = logging.FileHandler(filename=date.today().strftime("logs/%S-%M-%H-%d-%m-%Y.log"), mode='a')
+		handler = logging.FileHandler(filename='logs/'+self.name+'.log', mode='a')
 		formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
 		handler.setFormatter(formatter)
 		self.log.addHandler(handler)
@@ -117,7 +122,7 @@ class Record(object):
 	'''
 	def system_info(self):
 		uname = platform.uname()
-		gpus = [torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())]
+		gpus = [cuda.get_device_name(i) for i in range(cuda.device_count())]
 
 
 		self.extend({
@@ -143,6 +148,13 @@ class Record(object):
 	'''
 	'''
 	def write_json(self):
+		with open('output/'+self.name+'.json', 'w') as f:
+			json.dump(self.record, f)
+
+
+	'''
+	'''
+	def get(self, record_id):
 		pass
 
 

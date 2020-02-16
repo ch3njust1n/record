@@ -1,12 +1,9 @@
 ### Record
 Module for recording experiments
+Records are immutable
+
+### Reproducibility
+[The Machine Learning Reproducibility Checklist](https://www.cs.mcgill.ca/~jpineau/ReproducibilityChecklist.pdf)
 
 ### Examples
 
-
-### TODO
-1. Move to /Users/justin/anaconda3/lib/python3.6/site-packages/ so can import from anywhere
-
-2. CSV output support
-
-3. Reload
