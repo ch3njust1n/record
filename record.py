@@ -1,7 +1,6 @@
 '''
 Author: Justin Chen
 Date: 	2.15.2020
-#YangGangForever
 '''
 import os
 import sys
@@ -26,7 +25,7 @@ class Record(object):
 
 		# Connect to MongoDB
 		self.client = MongoClient(host, port)
-
+		self._id = None # Get record id
 		self.database = database
 		self.collection = collection
 		self.db = self.client[database]
