@@ -13,13 +13,14 @@ from datetime import date
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
-class Record(object):
+class Record(dict):
 	'''
 	inputs	host (string)	MongoDB host name
 			port (int)		MongoDB port number
 	'''
-	def __init__(self, host='localhost', port=27017, database='experiments', collection='parameters'):
-		
+	def __init__(self, _id='', host='localhost', port=27017, database='experiments', collection='parameters'):
+		super().__init__()
+
 		# Start MongoDB daemon
 		stream = os.popen('mongod')
 
@@ -29,46 +30,45 @@ class Record(object):
 		self.collection = collection
 		self.db = self.client[database]
 		self.col = self.db[collection]
+		self._id = str(_id) if isinstance(_id, ObjectId) else _id
 
-		self.record = {}
+		if len(self._id) > 0: self.update(self.col.find_one({'_id': ObjectId(self._id)}))
 
 		self.system_info()
 
-		# Save before process ends
-		atexit.register(self.save)
-
 
 	'''
-	Add experiment parameters to experiment record.
+	Update a dictionary value. Useful for tracking multiple experiments
+	e.g {
+		'model_0': {'time': 1606588095.295271, 'lr': 0.01},
+		'model_1': {'time': 1606588103.197889, 'lr': 0.001}
+	}
 
-	inputs	key   (string)	Name of parameter
-			value (any)		Value of parameter
+	update('model_1', {'time': 1606588162.7220979, 'lr': 0.002})
+
+	{
+		'model_0': {'time': 1606588095.295271, 'lr': 0.01},
+		'model_1': {'time': 1606588162.7220979, 'lr': 0.002}
+	}
+
+	inputs	value (any value)	     Value of parameter
+			key   (string, optional) Key to dict stored object
 	'''
-	def add(self, key, value):
-		if type(key) is not str:
-			raise Exception('Key parameter must be type String.')
+	def update(self, value, key=None):
 
 		if self.is_argparse(value):
 			value = vars(value)
 		
-		self.record[key] = value
+		if not key is None:
+			if type(key) is not str:
+				raise Exception('Key parameter must be type String.')
 
-
-	'''
-	Update record with dictionary
-
-	inputs: obj (dict or argparse.Namespace)	Dictionary or argparse.Namespace with values to update record
-	'''
-	def extend(self, obj):
-		is_argparse = self.is_argparse(obj)
-
-		if type(obj) is not dict and not is_argparse:
-			raise Exception('Input must be a dictionary or argparse.Namespace')
-
-		if is_argparse:
-			obj = vars(obj)
-
-		self.record.update(obj)
+			if key in self:
+				self[key].update(value)
+			else:
+				self[key] = value
+		else:
+			super().update(value)
 
 
 	'''
@@ -90,8 +90,8 @@ class Record(object):
  	output: id (string) Inserted document id
 	'''
 	def save(self):
-		doc_id = self.col.insert_one(self.record).inserted_id
-		return doc_id
+		doc_id = self.col.insert_one(dict(self.items())).inserted_id
+		if len(self._id) == 0: self._id = doc_id
 
 
 	'''
@@ -102,7 +102,7 @@ class Record(object):
 		gpus = [cuda.get_device_name(i) for i in range(cuda.device_count())]
 
 
-		self.extend({
+		self.update({
 			'python': platform.python_version(),
 			'machine': uname.machine,
 			'processor': uname.processor,
@@ -114,15 +114,4 @@ class Record(object):
 			'user': os.getlogin(),
 			'gpus': gpus
 		})
-
-
-	'''
-	Retrieve record
-
-	inputs:  record_id (string)	MongoDB document _id
-	outputs: record    (dict)   Dictionary of record corresponding to record_id
-	'''
-	def get(self, record_id):
-		return self.col.find_one({'_id': ObjectId(record_id)})
-
-
+	
