@@ -23,7 +23,7 @@ setup(
     url="https://github.com/ch3njust1n/record",
     license="MIT",
     entry_points={"console_scripts": ["record = record.cli:main",],},
-    install_requires=["requests", "urllib3"],
+    install_requires=["psutil", "pymongo", "pytorch"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
