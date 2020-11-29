@@ -56,6 +56,9 @@ class Record(dict):
 		if self.is_argparse(value):
 			value = vars(value)
 
+		if self.is_configparser(value):
+			value = { 'config': { k : dict(value[k].items()) for k, _ in value.items() } }
+
 		if key:
 			if not isinstance(key, str):
 				raise Exception('Key parameter must be type String.')
@@ -78,6 +81,19 @@ class Record(dict):
 		try:
 			return args.__module__ == 'argparse'
 		except AttributeError:
+			return False
+
+
+	'''
+	Check if argument is configparser.ConfigParser
+
+	inputs:  args(*)    Variable
+	outputs: res (bool) True if args is an instance of configparser.ConfigParser, else False
+	'''
+	def is_configparser(self, args):
+		try:
+			return args.__module__ == 'configparser'
+		except:
 			return False
 
 
