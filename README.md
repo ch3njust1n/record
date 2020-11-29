@@ -4,6 +4,12 @@ Module for recording experiments. Use to store results of a single experiment or
 ### Reproducibility
 [The Machine Learning Reproducibility Checklist](https://www.cs.mcgill.ca/~jpineau/ReproducibilityChecklist.pdf)
 
+
+### Installation
+```
+python -m pip install --upgrade git+https://github.com/ch3njust1n/record
+```
+
 ### Usage
 Create a client e.g. `main.py`:
 
@@ -212,3 +218,7 @@ View experiments in MongoDB shell
 db['Nov-27-2020'].find({}).pretty()
 ```
 
+Delete collection
+```
+db['Nov-29-2020'].drop()
+```
