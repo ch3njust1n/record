@@ -3,13 +3,9 @@ Author: Justin Chen
 Date: 	2.15.2020
 '''
 import os
-import sys
-import time
-import atexit
 import psutil
 import platform
 from torch import cuda
-from datetime import date
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 

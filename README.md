@@ -17,27 +17,52 @@ import torch.nn.functional as F
 import argparse
 from record import Record
 import matplotlib.pyplot as plt
+from pprint import pprint
+import numpy as np
 
 
-def visualize(record):
-	plt.plot(record['losses'])
-	plt.title('Training Loss')
+'''
+Visualize all training losses
+inputs:
+record (Record) Record object containing training data
+'''
+def visualize(_id, experiment):
+	record = Record(_id=_id, database='experiments', collection=experiment)
+
+	for model in record['models'].values():
+		plt.plot(model['losses'], c=model['color'], label=model['label'])
+
+	plt.title('Training Losses')
+	plt.legend(loc='upper right')
 	plt.show()
 
 
 def train(model_list, epochs, learning_rate, record):
 	loss = F.nll_loss
-	losses = []
+	all_models = {}
 
 	for i, model in enumerate(model_list):
-		record.add(f'model_{i}', [p.tolist() for p in model.parameters()])
+		# collect ith model's parameters
+		losses = []
+		model_key = f'model_{i}'
+		model_data = {'params': [p.tolist() for p in model.parameters()]}
+
 		for e in range(epochs):
-			input = torch.randn(3, 5)
-			target = torch.tensor([1, 0, 4])
-			l = F.nll_loss(F.log_softmax(input, dim=1), target)
+			inp = torch.randn(3, 5)
+			tgt = torch.tensor([1, 0, 4])
+			l = F.nll_loss(F.log_softmax(inp, dim=1), tgt)
 			losses.append(l.detach().tolist())
 
-	record.add('losses', losses)
+		# collect ith model's losses
+		model_data['losses'] = losses
+		model_data['color'] = np.random.rand(3,).tolist()
+		model_data['label'] = model_key
+
+		# store ith model's data
+		all_models[model_key] = model_data
+	
+	# add all model data to record
+	record.update(all_models, key='models')
 
 
 def main():
@@ -45,25 +70,25 @@ def main():
 	# Save argparse parameters
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--learning_rate', '-lr', type=float, default=0.01, help='Learning rate default: 0.01')
-	parser.add_argument('--epochs', '-e', type=int, default=1, help='Training epochs default: 1')
+	parser.add_argument('--epochs', '-e', type=int, default=10, help='Training epochs default: 1')
 	args = parser.parse_args()
 
 	# Create a Record and save args
 	experiment = dt.today().strftime("%b-%d-%Y")
 	rec = Record(database='experiments', collection=experiment)
-	rec.extend(args)
+	rec.update(args)
 
 	# Or save dictionaries
-	rec.extend({'desc': 'Example of how to use Record'})
+	rec.update({'desc': 'Example of how to use Record'})
 
 	model_list = [nn.Linear(2,3), nn.Linear(2,3)]
 	train(model_list, args.epochs, args.learning_rate, rec)
 
-	# Save the record to get the ID
-	rec_id = rec.save()
+	# Need to explicitly save to commit to MongoDB
+	rec.save()
 
 	# Retrieve the record and visualize it
-	visualize(rec.get(rec_id))
+	visualize(rec._id, experiment)
 
 
 if __name__ == '__main__':
@@ -173,6 +198,9 @@ if __name__ == '__main__':
 	}
 }
 ```
+
+Example output
+[Plotting multiple losses from above code](https://github.com/ch3njust1n/record/blob/dev/assets/example_plot.png)
 
 Run your client:
 ```
