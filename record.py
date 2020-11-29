@@ -51,19 +51,20 @@ class Record(dict):
 		'model_1': {'time': 1606588162.7220979, 'lr': 0.002}
 	}
 
-	inputs	value (any value)	     Value of parameter
-			key   (string, optional) Key to dict stored object
+	inputs
+	value (any value)        Value of parameter
+	key   (string, optional) Key to dict stored object
 	'''
 	def update(self, value, key=None):
 
 		if self.is_argparse(value):
 			value = vars(value)
-		
-		if not key is None:
-			if type(key) is not str:
-				raise Exception('Key parameter must be type String.')
 
-			if key in self:
+		if key:
+			if not isinstance(key, str):
+				raise Exception('Key parameter must be type String.')
+				
+			if key in self and isinstance(self[key], dict):
 				self[key].update(value)
 			else:
 				self[key] = value
