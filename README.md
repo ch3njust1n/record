@@ -200,7 +200,7 @@ if __name__ == '__main__':
 ```
 
 Example output
-[Plotting multiple losses from above code](https://github.com/ch3njust1n/record/blob/dev/assets/example_plot.png)
+![Plotting multiple losses from above code](https://github.com/ch3njust1n/record/blob/dev/assets/example_plot.png)
 
 Run your client:
 ```
