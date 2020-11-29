@@ -208,6 +208,14 @@ if __name__ == '__main__':
 Example output
 ![Plotting multiple losses from above code](https://github.com/ch3njust1n/record/blob/dev/assets/example_plot.png)
 
+
+### Save ConfigParser
+```
+config = configparser.ConfigParser()
+config.read(os.path.join('config', args.config+'.ini'))
+rec.update(config)
+```
+
 Run your client:
 ```
 python main.py
