@@ -3,7 +3,7 @@
 # Pystagram installation
 import codecs
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -18,12 +18,12 @@ setup(
     version=__version__,  # noqa: F821
     author="Justin Chen",
     author_email="ch3njus@gmail.com",
-    packages=["record"],
+    packages=find_packages(),
     package_data={"": ["LICENSE"],},
     url="https://github.com/ch3njust1n/record",
     license="MIT",
     entry_points={"console_scripts": ["record = record.cli:main",],},
-    install_requires=["requests", "urllib3"],
+    install_requires=["psutil", "pymongo", "pytorch"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
