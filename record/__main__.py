@@ -165,7 +165,7 @@ class Record(dict):
 			'storage': str(psutil.disk_usage('/').total//2**30)+' GB',
 			'user': os.getlogin(),
 			'gpus': gpus,
-			'timestamp': datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
+			'timestamp': datetime.now().strftime('%f-%S-%M-%H-%d-%m-%Y')
 		})
 
 
