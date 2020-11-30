@@ -8,6 +8,8 @@ import atexit
 import signal
 import psutil
 import platform
+from datetime import datetime
+
 from numpy import ndarray
 from torch import cuda, Tensor
 from pymongo import MongoClient
@@ -25,7 +27,7 @@ class Record(dict):
 	collection (string, optional)  MongoDB collection
 	save_dir   (string, optional)  Save Record to file as well as MongoDB
 	'''
-	def __init__(self, _id='', host='localhost', port=27017, database='experiments', collection='parameters', save_dir=''):
+	def __init__(self, _id='', host='localhost', port=27017, database='experiments', collection='results', save_dir=''):
 		super().__init__()
 
 		# Start MongoDB daemon
@@ -131,9 +133,6 @@ class Record(dict):
 
 	'''
 	Save the record to experiment document
-
- 	output: 
- 	id (string) Inserted document id
 	'''
 	def save(self):
 		record = dict(self.items())
@@ -143,6 +142,8 @@ class Record(dict):
 		if len(self.save_dir) > 0:
 			with open(os.path.join(self.save_dir, doc_id), 'w') as file:
 				json.dump(record, file)
+
+		print(f'record id: {doc_id}')
 
 
 	'''
@@ -163,7 +164,8 @@ class Record(dict):
 			'memory': str(psutil.virtual_memory().total//2**30)+' GB',
 			'storage': str(psutil.disk_usage('/').total//2**30)+' GB',
 			'user': os.getlogin(),
-			'gpus': gpus
+			'gpus': gpus,
+			'timestamp': datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
 		})
 
 
