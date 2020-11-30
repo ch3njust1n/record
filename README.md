@@ -90,9 +90,6 @@ def main():
 	model_list = [nn.Linear(2,3), nn.Linear(2,3)]
 	train(model_list, args.epochs, args.learning_rate, rec)
 
-	# Need to explicitly save to commit to MongoDB
-	rec.save()
-
 	# Retrieve the record and visualize it
 	visualize(rec._id, experiment)
 
