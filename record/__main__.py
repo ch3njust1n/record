@@ -37,7 +37,7 @@ class Record(dict):
 		self._id = str(_id) if isinstance(_id, ObjectId) else _id
 		self.save_dir = save_dir
 
-		if len(self._id) > 0: self.update(self.col.find_one({'_id': ObjectId(self._id)}))
+		if len(self._id) > 0: self.update(self.col.find_one({ '_id': ObjectId(self._id) }))
 
 		self.system_info()
 
@@ -105,7 +105,7 @@ class Record(dict):
 
 	inputs:  
 	args (*) Variable
-	
+
 	outputs: 
 	res (bool) True if args is an instance of configparser.ConfigParser, else False
 	'''
@@ -152,4 +152,16 @@ class Record(dict):
 			'user': os.getlogin(),
 			'gpus': gpus
 		})
+
+
+	'''
+	Remove this Record from database
+
+	outputs:
+	count (bool) True if deleted, else False
+	'''
+	def remove(self):
+		res = self.col.delete_one({ '_id': ObjectId(self._id) })
+		return bool(res.deleted_count)
+
 	
