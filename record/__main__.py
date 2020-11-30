@@ -8,9 +8,12 @@ import atexit
 import signal
 import psutil
 import platform
-from torch import cuda
+from numpy import ndarray
+from torch import cuda, Tensor
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from pandas.core.series import Series
+from pandas.core.frame import DataFrame
 
 class Record(dict):
 	'''
@@ -71,6 +74,12 @@ class Record(dict):
 
 		if self.is_configparser(value):
 			value = { 'config': { k : dict(value[k].items()) for k, _ in value.items() } }
+
+		if isinstance(value, (Tensor, ndarray, Series)):
+			value = value.tolist()
+
+		if isinstance(value, DataFrame):
+			value = pd.values.tolist()
 
 		if key:
 			if not isinstance(key, str):
