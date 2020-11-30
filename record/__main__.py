@@ -3,6 +3,8 @@ Author: Justin Chen
 Date: 	2.15.2020
 '''
 import os
+import atexit
+import signal
 import psutil
 import platform
 from torch import cuda
@@ -31,6 +33,10 @@ class Record(dict):
 		if len(self._id) > 0: self.update(self.col.find_one({'_id': ObjectId(self._id)}))
 
 		self.system_info()
+
+		atexit.register(self.save)
+		signal.signal(signal.SIGTERM, self.save)
+		signal.signal(signal.SIGINT, self.save)
 
 
 	'''
