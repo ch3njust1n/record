@@ -50,7 +50,11 @@ class Record(dict):
 
 
 	'''
-	Update a dictionary value. Useful for tracking multiple experiments
+	Update a dictionary value. Useful for tracking multiple experiments. 
+
+	Important: Values must be native Python types to be able to insert properly into MongoDB.
+	e.g. Must convert torch.Tensor, DataFrame, Series, or ndArray into lists before calling this function.
+
 	e.g {
 		'model_0': {'time': 1606588095.295271, 'lr': 0.01},
 		'model_1': {'time': 1606588103.197889, 'lr': 0.001}

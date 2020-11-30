@@ -49,15 +49,17 @@ def train(model_list, epochs, learning_rate, record):
 
 	for i, model in enumerate(model_list):
 		# collect ith model's parameters
-		losses = []
+		losses, logits = [], []
 		model_key = f'model_{i}'
 		model_data = {'params': [p.tolist() for p in model.parameters()]}
 
 		for e in range(epochs):
 			inp = torch.randn(3, 5)
 			tgt = torch.tensor([1, 0, 4])
-			l = F.nll_loss(F.log_softmax(inp, dim=1), tgt)
+			logit = F.log_softmax(inp, dim=1)
+			l = F.nll_loss(logit, tgt)
 			losses.append(l.detach().tolist())
+			logits.append(logit.tolist())
 
 		# collect ith model's losses
 		model_data['losses'] = losses
