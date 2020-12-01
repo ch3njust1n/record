@@ -11,7 +11,7 @@ import platform
 from datetime import datetime
 
 from numpy import ndarray
-from torch import cuda, Tensor
+from torch import cuda, Tensor, manual_seed
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from pandas.core.series import Series
@@ -26,12 +26,20 @@ class Record(dict):
 	database   (string, optional)  MongoDB database
 	collection (string, optional)  MongoDB collection
 	save_dir   (string, optional)  Save Record to file as well as MongoDB
+	seed 	   (int, optional)     Random seed
 	'''
-	def __init__(self, _id='', host='localhost', port=27017, database='experiments', collection='results', save_dir=''):
+	def __init__(self, _id='', host='localhost', port=27017, database='experiments', collection='results', save_dir='', seed=None):
 		super().__init__()
 
 		# Start MongoDB daemon
 		stream = os.popen('mongod')
+
+		# Set seed for random number generator
+		self.seed = seed
+		
+		if isinstance(seed, int): 
+			manual_seed(seed)
+			self.update(seed, key='seed')
 
 		# Connect to MongoDB
 		self.client = MongoClient(host, port)
