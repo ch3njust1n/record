@@ -3,6 +3,7 @@ Author: Justin Chen
 Date: 	2.15.2020
 '''
 import os
+import pwd
 import json
 import atexit
 import signal
@@ -174,7 +175,7 @@ class Record(dict):
 			'os_ver': platform.release(),
 			'memory': str(psutil.virtual_memory().total//2**30)+' GB',
 			'storage': str(psutil.disk_usage('/').total//2**30)+' GB',
-			'user': os.getlogin(),
+			'user': pwd.getpwuid(os.getuid())[0],
 			'gpus': gpus,
 			'timestamp': datetime.now().strftime('%f-%S-%M-%H-%d-%m-%Y')
 		})
