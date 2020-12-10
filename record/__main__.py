@@ -13,6 +13,7 @@ from datetime import datetime
 from numpy import ndarray
 from torch import cuda, Tensor, manual_seed
 from pymongo import MongoClient
+from gridfs import GridFS
 from bson.objectid import ObjectId
 from pandas.core.series import Series
 from pandas.core.frame import DataFrame
@@ -47,6 +48,8 @@ class Record(dict):
 		self.collection = collection
 		self.db = self.client[database]
 		self.col = self.db[collection]
+		self.fs = GridFS(self.db)
+		print(self.fs)
 		self._id = str(_id) if isinstance(_id, ObjectId) else _id
 		self.save_dir = save_dir
 
